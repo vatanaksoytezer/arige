@@ -1,16 +1,16 @@
 // DEBUG DEFINITION
-#define DEBUG 0
+#define DEBUG 1
 // Left MOTOR PIN DEFINITIONS
 const int R_EN_Left = 3;
 const int L_EN_Left = 4;
-const int RPWM_Output_Left = 6;
-const int LPWM_Output_Left = 5; 
+const int RPWM_Output_Left = 5;
+const int LPWM_Output_Left = 6; 
 
 // Right MOTOR PIN DEFINITONS
 const int R_EN_Right = 7;
 const int L_EN_Right = 8;
-const int RPWM_Output_Right = 9;
-const int LPWM_Output_Right = 10;
+const int RPWM_Output_Right = 10;
+const int LPWM_Output_Right = 9;
 
 // RECEIVER PIN DEFINITIONS AND VARIABLES
 const int elevator = 11; //ch2 in rc receiver
@@ -35,7 +35,7 @@ void robotMoveExecute()
   directionalSpeed =  map(aileronReadings, 1075,1925, -255 , 255);
 
   // Defining a deadzone for the forward speed
-  int deadZoneSpeed = 20;
+  int deadZoneSpeed = 30;
   // Motors will stop between if the pwm is wthin deadzone values
   if (forwardSpeed < deadZoneSpeed && forwardSpeed > -deadZoneSpeed)
   {
@@ -100,8 +100,8 @@ void robotMoveExecute()
        // Else left motor goes reverse direction
        else 
        {
-       analogWrite(LPWM_Output_Right, abs(leftMotorSpeed));
-       analogWrite(RPWM_Output_Right, 0);
+       analogWrite(LPWM_Output_Left, abs(leftMotorSpeed));
+       analogWrite(RPWM_Output_Left, 0);
        }
     }    
   }
@@ -117,13 +117,13 @@ void robotMoveExecute()
 
        // Now Calculate the Right Motor's Speed
        rightMotorSpeed = abs(forwardSpeed) - directionalSpeed;
-       // If the speed > 0 right motor goes forward 
+       // If the speed > 0 right motor goes backward 
        if (rightMotorSpeed >= 0) 
        {
        analogWrite(LPWM_Output_Right, rightMotorSpeed); // Motor goes backward
        analogWrite(RPWM_Output_Right, 0);
        }
-       // ELse right motor goes reverse direction
+       // ELse right motor goes forward direction
        else 
        {
        analogWrite(LPWM_Output_Right, 0);
@@ -139,17 +139,17 @@ void robotMoveExecute()
 
        // Now Calculate the Left Motor's Speed
        leftMotorSpeed = abs(forwardSpeed) - abs(directionalSpeed);
-       // If the speed > 0 left motor goes forward 
+       // If the speed > 0 left motor goes backward 
        if ( leftMotorSpeed >= 0) 
        {
        analogWrite(LPWM_Output_Left, leftMotorSpeed);
        analogWrite(RPWM_Output_Left, 0);
        }
-       // Else left motor goes reverse direction
+       // Else left motor goes forward direction
        else 
        {
-       analogWrite(LPWM_Output_Right, 0);
-       analogWrite(RPWM_Output_Right, abs(leftMotorSpeed));
+       analogWrite(LPWM_Output_Left, 0);
+       analogWrite(RPWM_Output_Left, abs(leftMotorSpeed));
        }
     }
     
