@@ -1,10 +1,10 @@
 // DEBUG DEFINITION
-#define DEBUG 1
+#define DEBUG 0
 // Left MOTOR PIN DEFINITIONS
 const int R_EN_Left = 3;
 const int L_EN_Left = 4;
-const int RPWM_Output_Left = 5;
-const int LPWM_Output_Left = 6; 
+const int RPWM_Output_Left = 6;
+const int LPWM_Output_Left = 5; 
 
 // Right MOTOR PIN DEFINITONS
 const int R_EN_Right = 7;
@@ -15,8 +15,10 @@ const int LPWM_Output_Right = 9;
 // RECEIVER PIN DEFINITIONS AND VARIABLES
 const int elevator = 11; //ch2 in rc receiver
 const int aileron  = 12; //ch1 in rc receiver
+const int failsafe = 13; // ch6 in rc receiver, switch A
 int elevatorReadings = 0;
 int aileronReadings = 0;
+int failsafeReadings = 0;
 
 // DIRECTION AND SPEED VARIABLES
 int forwardSpeed; // Forward and Backward Speed
@@ -29,13 +31,14 @@ void robotMoveExecute()
 {
   elevatorReadings = pulseIn(elevator, HIGH, 25000);
   aileronReadings  = pulseIn(aileron, HIGH, 25000);
+  failsafeReadings = pulseIn(failsafe, HIGH, 25000);
   // Mapping the elevator readings from the transmitter to usable PWM values to be used in determining forward Speed of the Vehicle
   forwardSpeed =  map(elevatorReadings, 1075,1925, -255 , 255); 
   // Mapping the aileron readings from the transmitter to usable PWM values to be used in determining directional Speed of the Vehicle
   directionalSpeed =  map(aileronReadings, 1075,1925, -255 , 255);
 
   // Defining a deadzone for the forward speed
-  int deadZoneSpeed = 30;
+  int deadZoneSpeed = 40;
   // Motors will stop between if the pwm is wthin deadzone values
   if (forwardSpeed < deadZoneSpeed && forwardSpeed > -deadZoneSpeed)
   {
@@ -54,7 +57,9 @@ void robotMoveExecute()
     Serial.print("Forward Speed: ");
     Serial.print(forwardSpeed);
     Serial.print("\tDirectional Speed: ");
-    Serial.println(directionalSpeed);    
+    Serial.print(directionalSpeed);
+    Serial.print("\tFailsafe Value: ");
+    Serial.println(failsafeReadings);    
   }
   
   // If you want to go forward
@@ -154,7 +159,30 @@ void robotMoveExecute()
     }
     
   }
-
+  
+  if (failsafeReadings < 1500) // If failsafe is activated
+  {
+    while(1)
+    {
+       failsafeReadings = pulseIn(failsafe, HIGH, 25000);
+       if (DEBUG)
+       {
+        Serial.print("Fail Safe: ");
+        Serial.println(failsafeReadings);
+       }
+       // Stop the motors
+       analogWrite(LPWM_Output_Right, 0);
+       analogWrite(RPWM_Output_Right, 0);
+       analogWrite(LPWM_Output_Left, 0);
+       analogWrite(RPWM_Output_Left, 0);
+       if ( failsafeReadings > 1500 ) break; // If failsafe is deactivated, go back to normal mode   
+    }
+    if (DEBUG)
+    {
+      Serial.print("Deactivating failsafe mode");
+    }
+  }
+  
 } 
 // ROBOT MOVEMENT END ***
  
@@ -193,5 +221,5 @@ if (DEBUG)
 
 void loop()
 {
-robotMoveExecute();
+    robotMoveExecute();
 }
