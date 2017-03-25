@@ -209,6 +209,7 @@ digitalWrite(L_EN_Right,HIGH);
 
 pinMode(elevator, INPUT);
 pinMode(aileron, INPUT);
+pinMode(failsafe, INPUT);
 
 if (DEBUG)
 {
